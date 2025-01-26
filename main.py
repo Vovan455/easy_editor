@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QMainWindow, QApplication,QFileDialog
+from PyQt6.QtWidgets import QMainWindow, QApplication, QFileDialog
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
 from PIL import Image, ImageFilter
@@ -33,7 +33,6 @@ def choose_workdir():
 
     ui.files_list.addItems(files_list)
 
-
 ui.choose_dir_btn.clicked.connect(choose_workdir) 
 
 class ImageProcessor():
@@ -45,7 +44,12 @@ class ImageProcessor():
     def openImage(self, filename: str):
         self.filename = filename
         self.full_path = os.path.join(workdir, filename)
-        self.image = Image.open(self.full_path)
+        
+        if not os.path.exists(self.full_path):
+            print(f"Файл {self.full_path} не знайдено.")
+            self.image = None
+        else:
+            self.image = Image.open(self.full_path)
 
     def showImage(self):
         if self.image is not None:
@@ -57,49 +61,69 @@ class ImageProcessor():
             ui.image_lb.setPixmap(pixmapimage)
 
             ui.image_lb.show()
+        else:
+            print("Фото для показу не знайдено.")
 
     def saveImage(self):
-        save_dir_path = os.path.join(workdir, self.modified_subfolder)
-        if not os.path.isdir(save_dir_path):
-            os.mkdir(save_dir_path)
+        if self.image is not None:
+            save_dir_path = os.path.join(workdir, self.modified_subfolder)
+            if not os.path.isdir(save_dir_path):
+                os.mkdir(save_dir_path)
 
-        full_path = os.path.join(save_dir_path, self.filename)
-        self.image.save(full_path)
+            full_path = os.path.join(save_dir_path, self.filename)
+            self.image.save(full_path)
+        else:
+            print("Фото для збереження не знайдено.")
 
     def makeBW(self):
-        self.image = self.image.convert("L")
-        self.saveImage()
-        modified_path = os.path.join(workdir, self.modified_subfolder, self.filename)
-        self.full_path = modified_path
-        self.showImage()
+        if self.image is not None:
+            self.image = self.image.convert("L")
+            self.saveImage()
+            modified_path = os.path.join(workdir, self.modified_subfolder, self.filename)
+            self.full_path = modified_path
+            self.showImage()
+        else:
+            print("Фото для обробки не знайдено.")
 
     def makeFlip(self):
-        self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
-        self.saveImage()
-        modified_path = os.path.join(workdir, self.modified_subfolder, self.filename)
-        self.full_path = modified_path
-        self.showImage()
+        if self.image is not None:
+            self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
+            self.saveImage()
+            modified_path = os.path.join(workdir, self.modified_subfolder, self.filename)
+            self.full_path = modified_path
+            self.showImage()
+        else:
+            print("Фото для обробки не знайдено.")
 
     def makeTurnLeft(self):
-        self.image = self.image.transpose(Image.ROTATE_90)
-        self.saveImage()
-        modified_path = os.path.join(workdir, self.modified_subfolder, self.filename)
-        self.full_path = modified_path
-        self.showImage()
+        if self.image is not None:
+            self.image = self.image.transpose(Image.ROTATE_90)
+            self.saveImage()
+            modified_path = os.path.join(workdir, self.modified_subfolder, self.filename)
+            self.full_path = modified_path
+            self.showImage()
+        else:
+            print("Фото для обробки не знайдено.")
 
     def makeTurnRigeh(self):
-        self.image = self.image.transpose(Image.ROTATE_270)
-        self.saveImage()
-        modified_path = os.path.join(workdir, self.modified_subfolder, self.filename)
-        self.full_path = modified_path
-        self.showImage()
+        if self.image is not None:
+            self.image = self.image.transpose(Image.ROTATE_270)
+            self.saveImage()
+            modified_path = os.path.join(workdir, self.modified_subfolder, self.filename)
+            self.full_path = modified_path
+            self.showImage()
+        else:
+            print("Фото для обробки не знайдено.")
 
     def makeSharepen(self):
-        self.image = self.image.filter(ImageFilter.SHARPEN)
-        self.saveImage()
-        modified_path = os.path.join(workdir, self.modified_subfolder, self.filename)
-        self.full_path = modified_path
-        self.showImage()
+        if self.image is not None:
+            self.image = self.image.filter(ImageFilter.SHARPEN)
+            self.saveImage()
+            modified_path = os.path.join(workdir, self.modified_subfolder, self.filename)
+            self.full_path = modified_path
+            self.showImage()
+        else:
+            print("Фото для обробки не знайдено.")
 
 ip = ImageProcessor()
 
@@ -108,20 +132,16 @@ def show_choosen_image():
         choosen_filename = ui.files_list.currentItem().text()
         ip.openImage(choosen_filename)
         ip.showImage()
+    else:
+        print("Фото для показу не вибрано.")
 
 ui.files_list.currentItemChanged.connect(show_choosen_image)
 
 ui.bw_btn.clicked.connect(ip.makeBW)
-
 ui.mirror_btn.clicked.connect(ip.makeFlip)
-
 ui.left_btn.clicked.connect(ip.makeTurnLeft)
-
 ui.right_btn.clicked.connect(ip.makeTurnRigeh)
-
 ui.sharp_btn.clicked.connect(ip.makeSharepen)
-
-
 
 win.show()
 app.exec()
