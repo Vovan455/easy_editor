@@ -27,11 +27,11 @@ def choose_workdir():
     ui.files_list.clear()
     global workdir
     workdir = QFileDialog.getExistingDirectory()
-    files_list = os.listdir(workdir)
+    if os.path.isdir(workdir):
+        files_list = os.listdir(workdir)
 
-    files_list = filter(files_list)
-
-    ui.files_list.addItems(files_list)
+        files_list = filter(files_list)
+        ui.files_list.addItems(files_list)
 
 ui.choose_dir_btn.clicked.connect(choose_workdir) 
 
