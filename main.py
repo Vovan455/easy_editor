@@ -24,6 +24,7 @@ def filter(files: list[str]):
     return filtered_files
 
 def choose_workdir():
+    ui.files_list.clear()
     global workdir
     workdir = QFileDialog.getExistingDirectory()
     files_list = os.listdir(workdir)
@@ -36,7 +37,7 @@ def choose_workdir():
 ui.choose_dir_btn.clicked.connect(choose_workdir) 
 
 class ImageProcessor():
-    def init(self):
+    def __init__(self):
         self.image: Image.Image = None
         self.filename: str = ""
         self.modified_subfolder = "modified"
@@ -57,21 +58,49 @@ class ImageProcessor():
 
             ui.image_lb.show()
 
-def saveImage(self):
-    save_dir_path = os.path.join(workdir, self.modified_subfolder)
-    if not os.path.isdir(save_dir_path):
-        os.mkdir(save_dir_path)
+    def saveImage(self):
+        save_dir_path = os.path.join(workdir, self.modified_subfolder)
+        if not os.path.isdir(save_dir_path):
+            os.mkdir(save_dir_path)
 
-    full_path = os.path.join(save_dir_path, self.filename)
-    self.image.save(full_path)
+        full_path = os.path.join(save_dir_path, self.filename)
+        self.image.save(full_path)
 
-def makeBW(self):
-    self.image = self.image.convert("L")
-    self.saveImage()
-    modified_path = os.path.join(workdir, self.modified_subfolder, self.filename)
-    ...
-    ...
-    ...
+    def makeBW(self):
+        self.image = self.image.convert("L")
+        self.saveImage()
+        modified_path = os.path.join(workdir, self.modified_subfolder, self.filename)
+        self.full_path = modified_path
+        self.showImage()
+
+    def makeFlip(self):
+        self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
+        self.saveImage()
+        modified_path = os.path.join(workdir, self.modified_subfolder, self.filename)
+        self.full_path = modified_path
+        self.showImage()
+
+    def makeTurnLeft(self):
+        self.image = self.image.transpose(Image.ROTATE_90)
+        self.saveImage()
+        modified_path = os.path.join(workdir, self.modified_subfolder, self.filename)
+        self.full_path = modified_path
+        self.showImage()
+
+    def makeTurnRigeh(self):
+        self.image = self.image.transpose(Image.ROTATE_270)
+        self.saveImage()
+        modified_path = os.path.join(workdir, self.modified_subfolder, self.filename)
+        self.full_path = modified_path
+        self.showImage()
+
+    def makeSharepen(self):
+        self.image = self.image.filter(ImageFilter.SHARPEN)
+        self.saveImage()
+        modified_path = os.path.join(workdir, self.modified_subfolder, self.filename)
+        self.full_path = modified_path
+        self.showImage()
+
 ip = ImageProcessor()
 
 def show_choosen_image():
@@ -81,6 +110,17 @@ def show_choosen_image():
         ip.showImage()
 
 ui.files_list.currentItemChanged.connect(show_choosen_image)
+
+ui.bw_btn.clicked.connect(ip.makeBW)
+
+ui.mirror_btn.clicked.connect(ip.makeFlip)
+
+ui.left_btn.clicked.connect(ip.makeTurnLeft)
+
+ui.right_btn.clicked.connect(ip.makeTurnRigeh)
+
+ui.sharp_btn.clicked.connect(ip.makeSharepen)
+
 
 
 win.show()
